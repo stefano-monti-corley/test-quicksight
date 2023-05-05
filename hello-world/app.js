@@ -1,33 +1,40 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
-let response;
+const { QuickSightClient, GenerateEmbedUrlForRegisteredUserCommand } = require("@aws-sdk/client-quicksight");
 
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html 
- * @param {Object} context
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- * 
- */
 exports.lambdaHandler = async (event, context) => {
     try {
-        // const ret = await axios(url);
-        response = {
-            'statusCode': 200,
-            'body': JSON.stringify({
-                message: 'hello world',
-                // location: ret.data.trim()
-            })
-        }
+        const client = new QuickSightClient(config);
+        const input = {
+            AwsAccountId: "327465495978", // required
+            SessionLifetimeInMinutes: 60,
+            UserArn: "arn:aws:lambda:eu-central-1:327465495978:function:test-quicksight-HelloWorldFunction-mYsxkQIFJQnZ", // required
+            ExperienceConfiguration: {
+                Dashboard: {
+                    InitialDashboardId: "d3e64692-410a-4ea8-9af7-0f05daf561c9", // required
+                    FeatureConfigurations: {
+                        StatePersistence: {
+                            Enabled: false, // required
+                        },
+                        Bookmarks: {
+                            Enabled: false, // required
+                        },
+                    },
+                },
+                DashboardVisual: {
+                    // RegisteredUserDashboardVisualEmbeddingConfiguration
+                    InitialDashboardVisualId: {
+                        // DashboardVisualId
+                        DashboardId: "d3e64692-410a-4ea8-9af7-0f05daf561c9", // required
+                        SheetId: "d3e64692-410a-4ea8-9af7-0f05daf561c9_385023b9-1ff7-4e4f-9118-ae4ca7c01788", // required
+                        VisualId: "d3e64692-410a-4ea8-9af7-0f05daf561c9_88f62564-b9b9-43e4-95fa-91f52f79386d", // required
+                    },
+                },
+            },
+        };
+        const command = new GenerateEmbedUrlForRegisteredUserCommand(input);
+        const response = await client.send(command);
+        return { statusCode: 200, body: JSON.stringify(response) };
     } catch (err) {
         console.log(err);
         return err;
     }
-
-    return response
 };
