@@ -22,6 +22,7 @@ Resources:
         - Statement:
           - Effect: Allow
             Action:
+              - quickSight:ListUser
               - quickSight:GenerateEmbedUrlForRegisteredUser
             Resource: '*'
       Architectures:

@@ -1,10 +1,10 @@
-const { QuickSightClient, GenerateEmbedUrlForRegisteredUserCommand } = require("@aws-sdk/client-quicksight");
+const { QuickSightClient, GenerateEmbedUrlForRegisteredUserCommand, ListUsersCommand } = require("@aws-sdk/client-quicksight");
 
 exports.lambdaHandler = async (event, context) => {
     try {
         const client = new QuickSightClient({ region: "eu-central-1" });
 
-        const command = new GenerateEmbedUrlForRegisteredUserCommand({
+        const generateUrlCommand = new GenerateEmbedUrlForRegisteredUserCommand({
             AwsAccountId: "327465495978",
             SessionLifetimeInMinutes: 60,
             UserArn: "arn:aws:quicksight:eu-central-1:327465495978:user/default/AWSReservedSSO_AdministratorAccess_aa0b2176933fbdd4/lorenzo.dessimoni@corley.it",
@@ -18,7 +18,7 @@ exports.lambdaHandler = async (event, context) => {
                 },
             }
         });
-        const response = await client.send(command);
+        const response = await client.send(generateUrlCommand);
         return { statusCode: 200, body: response };
     } catch (err) {
         console.log(err);
