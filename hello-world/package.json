@@ -7,7 +7,8 @@
   "author": "SAM CLI",
   "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-quicksight": "^3.327.0"
+    "@aws-sdk/client-quicksight": "^3.327.0",
+    "config": "^3.3.9"
   },
   "scripts": {
     "test": "exit 0;"

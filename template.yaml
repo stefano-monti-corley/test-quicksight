@@ -17,13 +17,13 @@ Resources:
     Properties:
       CodeUri: hello-world/
       Handler: app.lambdaHandler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Policies:
         - Statement:
           - Effect: Allow
             Action:
-              - quickSight:ListUser
-              - quickSight:GenerateEmbedUrlForRegisteredUser
+              - quicksight:DescribeUser
+              - quicksight:GenerateEmbedUrlForRegisteredUser
             Resource: '*'
       Architectures:
         - arm64
