@@ -1,0 +1,112 @@
+aws quicksight register-user --aws-account-id $AAI --namespace default --identity-type QUICKSIGHT --user-role READER --email stefano.monti02@gmail.com --user-name Default-Reader1
+aws quicksight create-group --aws-account-id $AAI --namespace default --group-name Default-ReaderGroup
+aws quicksight describe-group --aws-account-id $AAI --namespace default --group-name Default-ReaderGroup 
+aws quicksight list-groups --aws-account-id $AAI --namespace default
+
+aws quicksight create-group-membership --aws-account-id $AAI --namespace default --group-name Default-ReaderGroup --member-name Default-Reader1
+aws quicksight list-group-memberships --aws-account-id $AAI --namespace default --group-name Default-ReaderGroup
+aws quicksight list-user-groups --aws-account-id $AAI --namespace default --user-name Default-Reader1
+
+aws quicksight create-namespace --aws-account-id $AAI --identity-store QUICKSIGHT --namespace Customer1
+
+aws quicksight describe-namespace --aws-account-id $AAI --namespace Customer1
+aws quicksight register-user --aws-account-id $AAI --namespace Customer1 --identity-type IAM --iam-arn arn:aws:iam::$AAI:user/Customer1-Author1 --user-role AUTHOR --email stefano.monti02+userqs1@gmail.com
+aws quicksight register-user --aws-account-id $AAI --namespace Customer1 --identity-type IAM --iam-arn arn:aws:iam::$AAI:user/Customer1-Reader1 --user-role READER --email stefano.monti02+userqs1@gmail.com 
+
+curl -v -X OPTIONS https://5239hhgree.execute-api.eu-central-1.amazonaws.com/Prod{}
+
+
+* Connected to 5239hhgree.execute-api.eu-central-1.amazonaws.com (18.66.218.120) port 443 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+*  CAfile: /etc/ssl/certs/ca-certificates.crt
+*  CApath: /etc/ssl/certs
+* TLSv1.0 (OUT), TLS header, Certificate Status (22):
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+* TLSv1.2 (IN), TLS header, Certificate Status (22):
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.2 (IN), TLS header, Finished (20):
+{ [5 bytes data]
+* TLSv1.2 (IN), TLS header, Supplemental data (23):
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [19 bytes data]
+* TLSv1.2 (IN), TLS header, Supplemental data (23):
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [5003 bytes data]
+* TLSv1.2 (IN), TLS header, Supplemental data (23):
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+* TLSv1.2 (IN), TLS header, Supplemental data (23):
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [36 bytes data]
+* TLSv1.2 (OUT), TLS header, Finished (20):
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.2 (OUT), TLS header, Supplemental data (23):
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [36 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_128_GCM_SHA256
+* ALPN, server accepted to use h2
+* Server certificate:
+*  subject: CN=*.execute-api.eu-central-1.amazonaws.com
+*  start date: Mar 19 00:00:00 2023 GMT
+*  expire date: Apr 17 23:59:59 2024 GMT
+*  subjectAltName: host "5239hhgree.execute-api.eu-central-1.amazonaws.com" matched cert's "*.execute-api.eu-central-1.amazonaws.com"
+*  issuer: C=US; O=Amazon; CN=Amazon RSA 2048 M01
+*  SSL certificate verify ok.
+* Using HTTP2, server supports multiplexing
+* Connection state changed (HTTP/2 confirmed)
+* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0
+* TLSv1.2 (OUT), TLS header, Supplemental data (23):
+} [5 bytes data]
+* TLSv1.2 (OUT), TLS header, Supplemental data (23):
+} [5 bytes data]
+* TLSv1.2 (OUT), TLS header, Supplemental data (23):
+} [5 bytes data]
+* Using Stream ID: 1 (easy handle 0x55f3f775c5c0)
+* TLSv1.2 (OUT), TLS header, Supplemental data (23):
+} [5 bytes data]
+> OPTIONS /Prod/hello HTTP/2
+> Host: 5239hhgree.execute-api.eu-central-1.amazonaws.com
+> user-agent: curl/7.81.0
+> accept: */*
+> 
+* TLSv1.2 (IN), TLS header, Supplemental data (23):
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [124 bytes data]
+* TLSv1.2 (IN), TLS header, Supplemental data (23):
+{ [5 bytes data]
+* Connection state changed (MAX_CONCURRENT_STREAMS == 128)!
+* TLSv1.2 (OUT), TLS header, Supplemental data (23):
+} [5 bytes data]
+* TLSv1.2 (IN), TLS header, Supplemental data (23):
+{ [5 bytes data]
+< HTTP/2 200 
+< content-type: application/json
+< content-length: 3
+< date: Thu, 11 May 2023 11:52:45 GMT
+< x-amzn-requestid: 4080abc7-4d46-41ad-bcda-7095615abb1e
+< access-control-allow-origin: *
+< x-amz-apigw-id: EwaKLHhAFiAFnXQ=
+< access-control-allow-methods: GET,OPTIONS
+< x-cache: Miss from cloudfront
+< via: 1.1 69b8255864bcbab6fa21e4a2a96c169e.cloudfront.net (CloudFront)
+< x-amz-cf-pop: MXP63-P2
+< x-amz-cf-id: S-vGn79y5M5lbi8R0fI8PscNgI_r_iASfyomDMqJ4s9x9luoYcTkoA==
+< 
+{ [3 bytes data]
+* TLSv1.2 (IN), TLS header, Supplemental data (23):
+{ [5 bytes data]
+100     3  100     3    0     0     17      0 --:--:-- --:--:-- --:--:--    17
+* Connection #0 to host 5239hhgree.execute-api.eu-central-1.amazonaws.com left 

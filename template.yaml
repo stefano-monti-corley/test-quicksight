@@ -1,17 +1,171 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   test-quicksight
 
   Sample SAM Template for test-quicksight
-  
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 3
     MemorySize: 128
 
+
+Parameters:
+  Prefix:
+    Type: String
+    Default: test-quicksight
+
 Resources:
+
+  ApiGatewayRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+      Policies:
+        - PolicyName: !Sub "${Prefix}-InvokeFunctionPolicy"
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !GetAtt HelloWorldFunction.Arn
+
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      EndpointConfiguration:
+        Types:
+          - EDGE
+      Name: !Ref Prefix
+
+
+
+  Resource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt RestApi.RootResourceId
+      PathPart: dashboard
+      RestApiId: !Ref RestApi
+
+  Method:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Credentials: !GetAtt ApiGatewayRole.Arn
+        Type: AWS
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloWorldFunction.Arn}/invocations
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      ResourceId: !Ref Resource
+      RestApiId: !Ref RestApi
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: 'Empty'
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  OptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      ResourceId: !Ref Resource
+      RestApiId: !Ref RestApi
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: 'Empty'
+        ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  Deployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - Method
+    Properties:
+      RestApiId: !Ref RestApi
+
+  Stage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref Deployment
+      RestApiId: !Ref RestApi
+      StageName: dev
+
+
+  # ApiGateway:
+  #   Type: AWS::Serverless::Api
+  #   Properties:
+  #     StageName: Prod
+  #     Cors:
+  #       AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+  #       AllowMethods: "'GET'"
+  #       AllowOrigin: "'*'"
+  #     DefinitionBody:
+  #       swagger: 2.0
+  #       schemes:
+  #         - https
+  #       paths:
+  #         /:
+  #           get:
+  #             produces:
+  #               - application/json
+  #             x-amazon-apigateway-integration:
+  #               type: aws
+  #               httpMethod: POST
+  #               uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloWorldFunction.Arn}/invocations
+  #             x-amazon-apigateway-integration.response:
+  #               statusCode: 200
+  #             x-amazon-apigateway-cors:
+  #               allowOrigins:
+  #                 - "'*'"
+  #               allowMethods:
+  #                 - GET
+  #                 - OPTIONS
+  #                 - POST
+  #               allowHeaders:
+  #                 - x-apigateway-header
+  #                 - x-amz-date
+  #                 - content-type
+          
+
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -20,19 +174,13 @@ Resources:
       Runtime: nodejs18.x
       Policies:
         - Statement:
-          - Effect: Allow
-            Action:
-              - quicksight:DescribeUser
-              - quicksight:GenerateEmbedUrlForRegisteredUser
-            Resource: '*'
+            - Effect: Allow
+              Action:
+                - quicksight:DescribeUser
+                - quicksight:GenerateEmbedUrlForRegisteredUser
+              Resource: "*"
       Architectures:
-        - arm64
-      Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /hello
-            Method: get
+        - x86_64
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -40,7 +188,7 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   HelloWorldApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
   HelloWorldFunction:
     Description: "Hello World Lambda Function ARN"
     Value: !GetAtt HelloWorldFunction.Arn
